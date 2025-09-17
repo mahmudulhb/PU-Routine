@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PU Routine - CSE Section 3</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --text: #2b2d42;
+            --border: #e9ecef;
+            --theory: #4cc9f0;
+            --lab: #fb8500;
+            --card-bg: #ffffff;
+            --header-bg: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            --current-class: #4caf50;
+            --next-class: #ff9800;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --card-radius: 16px;
+            --section-padding: 20px;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            overflow-x: hidden;
+            transition: background 0.3s ease;
+        }
+
+        body.dark-mode {
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+            --text: #f8f9fa;
+            --light: #2b2d42;
+            --card-bg: #343a40;
+            --border: #495057;
+            --header-bg: linear-gradient(135deg, #3a0ca3 0%, #7209b7 100%);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            margin: 0 auto;
+            box-shadow: var(--shadow);
+            background: var(--card-bg);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Styles */
+        header {
+            background: var(--header-bg);
+            color: white;
+            padding: 20px 15px 12px;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(-15deg);
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            margin-right: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.2);
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        /* Info Bar */
+        .info-bar {
+            background: var(--card-bg);
+            padding: 12px;
+            margin: 0;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            color: var(--text);
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+            gap: 8px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            margin: 0;
+            font-size: 0.8rem;
+            background: var(--light);
+            padding: 6px 10px;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 0;
+            justify-content: center;
+        }
+
+        .info-item i {
+            margin-right: 6px;
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+
+        /* Current Class Indicator */
+        .current-class-indicator {
+            background: var(--card-bg);
+            border-left: 4px solid var(--current-class);
+            padding: 12px;
+            margin: 10px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            box-shadow: var(--shadow);
+        }
+
+        .current-class-indicator i {
+            color: var(--current-class);
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: var(--card-bg);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            flex-shrink: 0;
+            gap: 12px;
+        }
+
+        .day-filter {
+            display: flex;
+            background: var(--light);
+            border-radius: 10px;
+            padding: 4px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .day-btn {
+            padding: 6px 8px;
+            border: none;
+            background: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            flex: 1;
+            color: var(--text);
+        }
+
+        .day-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: var(--light);
+            border-radius: 10px;
+            padding: 0 12px;
+            height: 36px;
+            width: 40px;
+            transition: width 0.3s ease;
+            overflow: hidden;
+        }
+
+        .search-box.active {
+            width: 120px;
+        }
+
+        .search-box input {
+            border: none;
+            padding: 0 8px;
+            outline: none;
+            width: 100%;
+            font-size: 0.8rem;
+            background: transparent;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            color: var(--text);
+        }
+
+        .search-box.active input {
+            opacity: 1;
+        }
+
+        /* Schedule */
+        .schedule-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px;
+            background: var(--light);
+        }
+
+        .day-header {
+            display: flex;
+            align-items: center;
+            margin: 15px 0 10px;
+        }
+
+        .day-header h2 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-right: 10px;
+            font-weight: 600;
+        }
+
+        .day-line {
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(to right, var(--primary), transparent);
+        }
+
+        .class-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 12px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+
+        .class-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .class-card.current {
+            border-left: 4px solid var(--current-class);
+        }
+
+        .class-card.next {
+            border-left: 4px solid var(--next-class);
+        }
+
+        .current-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--current-class);
+            color: white;
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .next-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--next-class);
+            color: white;
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .card-header {
+            padding: 12px;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            background: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .class-card.current .card-header {
+            background: var(--current-class);
+        }
+
+        .class-card.next .card-header {
+            background: var(--next-class);
+        }
+
+        .card-body {
+            padding: 12px;
+        }
+
+        .class-detail {
+            display: flex;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .class-detail i {
+            font-size: 1rem;
+            margin-right: 12px;
+            color: var(--primary);
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .class-card.current .class-detail i,
+        .class-card.next .class-detail i {
+            color: inherit;
+        }
+
+        .class-detail div {
+            flex: 1;
+        }
+
+        .class-title {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 6px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .class-card.current .class-title,
+        .class-card.next .class-title {
+            color: inherit;
+        }
+
+        .class-type {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .theory {
+            background: rgba(76, 201, 240, 0.15);
+            color: var(--theory);
+        }
+
+        .lab {
+            background: rgba(251, 133, 0, 0.15);
+            color: var(--lab);
+        }
+
+        /* No Results Message */
+        .no-results {
+            text-align: center;
+            padding: 30px 15px;
+            color: #888;
+            display: none;
+        }
+
+        .no-results i {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            color: #ddd;
+        }
+
+        /* Developer Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .developer-modal {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            max-width: 300px;
+            width: 85%;
+            box-shadow: var(--shadow);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .developer-modal {
+            transform: translateY(0);
+        }
+
+        .developer-modal i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .developer-modal h3 {
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .developer-modal p {
+            margin-bottom: 15px;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .modal-close {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .modal-close:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            background: var(--card-bg);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            width: 25px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        .nav-item i {
+            font-size: 1.1rem;
+            margin-bottom: 3px;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .class-card {
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .class-card:nth-child(2) { animation-delay: 0.1s; }
+        .class-card:nth-child(3) { animation-delay: 0.2s; }
+        .class-card:nth-child(4) { animation-delay: 0.3s; }
+        .class-card:nth-child(5) { animation-delay: 0.4s; }
+        .class-card:nth-child(6) { animation-delay: 0.5s; }
+        .class-card:nth-child(7) { animation-delay: 0.6s; }
+        .class-card:nth-child(8) { animation-delay: 0.7s; }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: white;
+            padding: 10px 16px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+        
+        /* Search icon click area */
+        .search-icon {
+            cursor: pointer;
+        }
+        
+        /* Additional sections */
+        .section {
+            display: none;
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: var(--light);
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .course-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+        }
+        
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .course-code {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .course-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .course-detail {
+            display: flex;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        
+        .course-detail i {
+            margin-right: 10px;
+            color: var(--primary);
+            width: 18px;
+        }
+        
+        .update-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        
+        .update-card i {
+            font-size: 2.5rem;
+            color: #ddd;
+            margin-bottom: 10px;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .setting-info {
+            flex: 1;
+        }
+        
+        .setting-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .setting-desc {
+            font-size: 0.8rem;
+            color: #888;
+        }
+        
+        .theme-selector {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .theme-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .theme-option.active {
+            border-color: var(--primary);
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="header-content">
+                <div class="logo-container">
+                    <i class="fas fa-graduation-cap logo"></i>
+                    <div>
+                        <h1>Presidency University</h1>
+                        <div class="subtitle">CSE Section 3 • Batch 252</div>
+                    </div>
+                </div>
+                <div class="user-actions">
+                    <div class="icon-btn" id="notifications-btn">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="icon-btn" id="profile-btn">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="info-bar">
+            <div class="info-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Fall Semester 2025</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-clock"></i>
+                <span id="current-date">Updated Today</span>
+            </div>
+        </div>
+
+        <div class="current-class-indicator" id="current-class-indicator">
+            <i class="fas fa-info-circle"></i>
+            <span id="current-class-text">No class currently in session</span>
+        </div>
+
+        <div class="controls">
+            <div class="day-filter">
+                <button class="day-btn active" data-day="all">All</button>
+                <button class="day-btn" data-day="saturday">Sat</button>
+                <button class="day-btn" data-day="tuesday">Tue</button>
+                <button class="day-btn" data-day="thursday">Thu</button>
+            </div>
+            
+            <div class="search-box" id="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search class or teacher..." id="search-input">
+            </div>
+        </div>
+
+        <!-- Schedule Section -->
+        <div class="section active" id="schedule-section">
+            <div class="schedule-container">
+                <div class="schedule" id="schedule">
+                    <!-- Saturday Classes -->
+                    <div class="day-header" data-day="saturday">
+                        <h2>Saturday</h2>
+                        <div class="day-line"></div>
+                    </div>
+                    
+                    <div class="class-card" data-day="saturday" data-start="0850" data-end="1115">
+                        <div class="card-header">
+                            <span>PHY108</span>
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <div class="card-body">
+                            <div class="class-title">General Physics I Laboratory <span class="class-type lab">LAB</span></div>
+                            <div class="class-detail">
+                                <i class="far fa-clock"></i>
+                                <div>08:50 – 11:15</div>
+                            </div>
+                            <div class="class-detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>Room 105</div>
+                            </div>
+                            <div class="class-detail">
+                                <i class="fas fa-user-tie"></i>
+                                <div>Fatema Sayed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="class-card" data-day="saturday" data-start="1120" data-end="1230">
+                        <div class="card-header">
+                            <span>PHY107</span>
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="card-body">
+                            <div class="class-title">General Physics I <span class="class-type theory">THEORY</span></div>
+                            <div class="class-detail">
+                                <i class="far fa-clock"></i>
+                                <div>11:20 – 12:30</div>
+                            </div>
+                            <div class="class-detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>Room 313</div>
+                            </div>
+                            <div class="class-detail">
+                                <i class="fas fa-user-tie"></i>
+                                <div>Fatema Sayed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tuesday Classes -->
+                    <div class="day-header" data-day="tuesday">
+                        <h2>Tuesday</h2>
+                        <div class="day-line"></div>
+                    </div>
+                    
+                    <div class="class-card" data-day="tuesday" data-start="0850" data-end="1000">
+                        <div class="card-header">
+                            <span>PHY107</span>
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="card-body">
+                            <div class="class-title">General Physics I <span class="class-type theory">THEORY</span></div>
+                            <div class="class-detail">
+                                <i class="far fa-clock"></i>
+                                <div>08:50 – 10:00</div>
+                            </div>
+                            <div class="class-detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>Room 313</div>
+                            </div>
+                            <div class="class-detail">
+                                <i class="fas fa-user-tie"></i>
+                                <div>Fatema Sayed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="class-card" data-day="tuesday" data-start="1005" data-end="1115">
+                        <div class="card-header">
+                            <span>MAT123</span>
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <div class="card-body">
+                            <div class="class-title">Calculus I <span class="class-type theory">THEORY</span></div>
+                            <div class="class-detail">
+                                <i class="far fa-clock"></i>
+                                <div>10:05 – 11:15</div>
+                            </div>
+                            <div class="class-detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>Room 313</div>
+                            </div>
+                            <div class="class-detail">
+                                <i class="fas fa-user-tie"></i>
+                                <div>Nafia Mollik</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="class-card" data-day="tuesday" data-start="1120" data-end="1345">
+                        <div class="card-header">
+                            <span>CSE110</span>
+                            <i class="fas fa-laptop-code"></i>
+                        </div>
+                        <div class="card-body">
+                            <div class="class-title">Computer Programming Laboratory <span class="class-type lab">LAB</span></div>
+                            <div class="class-detail">
+                                <i class="far fa-clock"></i>
+                                <div>11:20 – 13:45</div>
+                            </div>
+                            <div class="class-detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>Room -</div>
+                            </div>
+                            <div class="class-detail">
+                                <i class="fas fa-user-tie"></i>
+                                <div>To be announced</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thursday Classes -->
+                    <div class="day-header" data-day="thursday">
+                        <h2>Thursday</h2>
+                        <div class="day-line"></div>
+                    </div>
+                    
+                    <div class="class-card" data-day="thursday" data-start="0850" data-end="1115">
+                        <div class="card-header">
+                            <span>ENG101</span>
+                            <i class="fas fa-pencil-alt"></i>
+                        </div>
+                        <div class="card-body">
+                            <div class="class-title">English Reading & Composition <span class="class-type theory">THEORY</span></div>
+                            <div class="class-detail">
+                                <i class="far fa-clock"></i>
+                                <div>08:50 – 11:15</div>
+                            </div>
+                            <div class="class-detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>Room -</div>
+                            </div>
+                            <div class="class-detail">
+                                <i class="fas fa-user-tie"></i>
+                                <div>To be announced</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="class-card" data-day="thursday" data-start="1120" data-end="1230">
+                        <div class="card-header">
+                            <span>MAT123</span>
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <div class="card-body">
+                            <div class="class-title">Calculus I <span class="class-type theory">THEORY</span></div>
+                            <div class="class-detail">
+                                <i class="far fa-clock"></i>
+                                <div>11:20 – 12:30</div>
+                            </div>
+                            <div class="class-detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>Room 125</div>
+                            </div>
+                            <div class="class-detail">
+                                <i class="fas fa-user-tie"></i>
+                                <div>Nafia Mollik</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="class-card" data-day="thursday" data-start="1235" data-end="1500">
+                        <div class="card-header">
+                            <span>CSE109</span>
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div class="card-body">
+                            <div class="class-title">Computer Programming <span class="class-type theory">THEORY</span></div>
+                            <div class="class-detail">
+                                <i class="far fa-clock"></i>
+                                <div>12:35 – 15:00</div>
+                            </div>
+                            <div class="class-detail">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>Room 115</div>
+                            </div>
+                            <div class="class-detail">
+                                <i class="fas fa-user-tie"></i>
+                                <div>Mostofa Kamal Sagor</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="no-results" id="no-results">
+                    <i class="fas fa-search"></i>
+                    <p>No classes found</p>
+                    <p class="subtitle">Try a different search term or day filter</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Courses Section -->
+        <div class="section" id="courses-section">
+            <div class="course-card">
+                <div class="course-header">
+                    <span class="course-code">CSE109</span>
+                    <span class="class-type theory">THEORY</span>
+                </div>
+                <div class="course-title">Computer Programming</div>
+                <div class="course-detail">
+                    <i class="fas fa-user-tie"></i>
+                    <div>Mostofa Kamal Sagor</div>
+                </div>
+                <div class="course-detail">
+                    <i class="fas fa-graduation-cap"></i>
+                    <div>3 Credits</div>
+                </div>
+            </div>
+            
+            <div class="course-card">
+                <div class="course-header">
+                    <span class="course-code">CSE110</span>
+                    <span class="class-type lab">LAB</span>
+                </div>
+                <div class="course-title">Computer Programming Laboratory</div>
+                <div class="course-detail">
+                    <i class="fas fa-user-tie"></i>
+                    <div>To be announced</div>
+                </div>
+                <div class="course-detail">
+                    <i class="fas fa-graduation-cap"></i>
+                    <div>1 Credit</div>
+                </div>
+            </div>
+            
+            <div class="course-card">
+                <div class="course-header">
+                    <span class="course-code">MAT123</span>
+                    <span class="class-type theory">THEORY</span>
+                </div>
+                <div class="course-title">Calculus I</div>
+                <div class="course-detail">
+                    <i class="fas fa-user-tie"></i>
+                    <div>Nafia Mollik</div>
+                </div>
+                <div class="course-detail">
+                    <i class="fas fa-graduation-cap"></i>
+                    <div>3 Credits</div>
+                </div>
+            </div>
+            
+            <div class="course-card">
+                <div class="course-header">
+                    <span class="course-code">PHY107</span>
+                    <span class="class-type theory">THEORY</span>
+                </div>
+                <div class="course-title">General Physics I</div>
+                <div class="course-detail">
+                    <i class="fas fa-user-tie"></i>
+                    <div>Fatema Sayed</div>
+                </div>
+                <div class="course-detail">
+                    <i class="fas fa-graduation-cap"></i>
+                    <div>3 Credits</div>
+                </div>
+            </div>
+            
+            <div class="course-card">
+                <div class="course-header">
+                    <span class="course-code">PHY108</span>
+                    <span class="class-type lab">LAB</span>
+                </div>
+                <div class="course-title">General Physics I Laboratory</div>
+                <div class="course-detail">
+                    <i class="fas fa-user-tie"></i>
+                    <div>Fatema Sayed</div>
+                </div>
+                <div class="course-detail">
+                    <i class="fas fa-graduation-cap"></i>
+                    <div>1 Credit</div>
+                </div>
+            </div>
+            
+            <div class="course-card">
+                <div class="course-header">
+                    <span class="course-code">ENG101</span>
+                    <span class="class-type theory">THEORY</span>
+                </div>
+                <div class="course-title">English Reading & Composition</div>
+                <div class="course-detail">
+                    <i class="fas fa-user-tie"></i>
+                    <div>To be announced</div>
+                </div>
+                <div class="course-detail">
+                    <i class="fas fa-graduation-cap"></i>
+                    <div>3 Credits</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Updates Section -->
+        <div class="section" id="updates-section">
+            <div class="update-card">
+                <i class="fas fa-bell-slash"></i>
+                <h3>No Updates Available</h3>
+                <p>Check back later for new announcements</p>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="section" id="settings-section">
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-title">Dark Mode</div>
+                    <div class="setting-desc">Switch between light and dark themes</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="dark-mode-toggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-title">App Theme Color</div>
+                    <div class="setting-desc">Choose your preferred color scheme</div>
+                </div>
+            </div>
+            
+            <div class="theme-selector">
+                <div class="theme-option active" style="background-color: #4361ee;" data-color="#4361ee"></div>
+                <div class="theme-option" style="background-color: #3a0ca3;" data-color="#3a0ca3"></div>
+                <div class="theme-option" style="background-color: #f72585;" data-color="#f72585"></div>
+                <div class="theme-option" style="background-color: #4caf50;" data-color="#4caf50"></div>
+                <div class="theme-option" style="background-color: #ff9800;" data-color="#ff9800"></div>
+            </div>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-title">Notifications</div>
+                    <div class="setting-desc">Enable or disable push notifications</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="setting-item">
+                <div class="setting-info">
+                    <div class="setting-title">Auto-refresh</div>
+                    <div class="setting-desc">Update class status automatically</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Developer Modal -->
+        <div class="modal-overlay" id="developer-modal">
+            <div class="developer-modal">
+                <i class="fas fa-code"></i>
+                <h3>Developed By</h3>
+                <p>Mahmudul Hasan Bappy</p>
+                <button class="modal-close" id="modal-close">Close</button>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div class="toast" id="toast"></div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <div class="nav-item active" data-section="schedule-section">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Schedule</span>
+            </div>
+            <div class="nav-item" data-section="courses-section">
+                <i class="fas fa-book"></i>
+                <span>Courses</span>
+            </div>
+            <div class="nav-item" data-section="updates-section">
+                <i class="fas fa-bell"></i>
+                <span>Updates</span>
+            </div>
+            <div class="nav-item" data-section="settings-section">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dayButtons = document.querySelectorAll('.day-btn');
+            const classCards = document.querySelectorAll('.class-card');
+            const dayHeaders = document.querySelectorAll('.day-header');
+            const searchInput = document.querySelector('#search-input');
+            const searchBox = document.querySelector('#search-box');
+            const schedule = document.querySelector('#schedule');
+            const noResults = document.querySelector('#no-results');
+            const currentDateElement = document.querySelector('#current-date');
+            const currentClassIndicator = document.querySelector('#current-class-indicator');
+            const currentClassText = document.querySelector('#current-class-text');
+            const notificationsBtn = document.querySelector('#notifications-btn');
+            const profileBtn = document.querySelector('#profile-btn');
+            const developerModal = document.querySelector('#developer-modal');
+            const modalClose = document.querySelector('#modal-close');
+            const toast = document.querySelector('#toast');
+            const searchIcon = document.querySelector('.search-icon');
+            const navItems = document.querySelectorAll('.nav-item');
+            const sections = document.querySelectorAll('.section');
+            const darkModeToggle = document.querySelector('#dark-mode-toggle');
+            const themeOptions = document.querySelectorAll('.theme-option');
+            
+            // Set current date
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            currentDateElement.textContent = now.toLocaleDateString('en-US', options);
+            
+            // Toggle search box
+            searchIcon.addEventListener('click', () => {
+                searchBox.classList.toggle('active');
+                if (searchBox.classList.contains('active')) {
+                    searchInput.focus();
+                }
+            });
+            
+            // Check current class function
+            function checkCurrentClass() {
+                const currentDay = now.getDay(); // 0 = Sunday, 6 = Saturday
+                const currentHour = now.getHours();
+                const currentMinute = now.getMinutes();
+                const currentTime = currentHour * 100 + currentMinute;
+                
+                let dayName;
+                switch(currentDay) {
+                    case 6: dayName = 'saturday'; break;
+                    case 2: dayName = 'tuesday'; break;
+                    case 4: dayName = 'thursday'; break;
+                    default: dayName = null;
+                }
+                
+                // Reset all classes
+                classCards.forEach(card => {
+                    card.classList.remove('current', 'next');
+                    const badge = card.querySelector('.current-badge') || card.querySelector('.next-badge');
+                    if (badge) badge.remove();
+                });
+                
+                if (dayName) {
+                    const todayClasses = Array.from(classCards).filter(card => 
+                        card.getAttribute('data-day') === dayName
+                    );
+                    
+                    let currentClass = null;
+                    let nextClass = null;
+                    
+                    // Find current and next class
+                    todayClasses.forEach(card => {
+                        const startTime = parseInt(card.getAttribute('data-start'));
+                        const endTime = parseInt(card.getAttribute('data-end'));
+                        
+                        if (currentTime >= startTime && currentTime <= endTime) {
+                            currentClass = card;
+                        } else if (currentTime < startTime && !nextClass) {
+                            nextClass = card;
+                        }
+                    });
+                    
+                    // Apply styles to current and next class
+                    if (currentClass) {
+                        currentClass.classList.add('current');
+                        const badge = document.createElement('div');
+                        badge.className = 'current-badge';
+                        badge.textContent = 'NOW';
+                        currentClass.querySelector('.card-body').appendChild(badge);
+                        currentClassText.textContent = `Currently: ${currentClass.querySelector('.class-title').textContent}`;
+                    } else if (nextClass) {
+                        nextClass.classList.add('next');
+                        const badge = document.createElement('div');
+                        badge.className = 'next-badge';
+                        badge.textContent = 'NEXT';
+                        nextClass.querySelector('.card-body').appendChild(badge);
+                        
+                        const startTime = nextClass.getAttribute('data-start');
+                        const hours = Math.floor(startTime / 100);
+                        const minutes = startTime % 100;
+                        const formattedTime = `${hours}:${minutes.toString().padStart(2, '0')}`;
+                        
+                        currentClassText.textContent = `Next: ${nextClass.querySelector('.class-title').textContent} at ${formattedTime}`;
+                    } else {
+                        currentClassText.textContent = 'No more classes today';
+                    }
+                } else {
+                    currentClassText.textContent = 'No classes scheduled for today';
+                }
+            }
+            
+            // Initial check for current class
+            checkCurrentClass();
+            
+            // Day filtering functionality
+            dayButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const day = button.getAttribute('data-day');
+                    
+                    // Update active button
+                    dayButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    filterClasses();
+                });
+            });
+            
+            // Search functionality
+            searchInput.addEventListener('input', filterClasses);
+            
+            // Filter classes based on active filters
+            function filterClasses() {
+                const activeDay = document.querySelector('.day-btn.active').getAttribute('data-day');
+                const searchText = searchInput.value.toLowerCase();
+                
+                let hasVisibleClasses = false;
+                
+                classCards.forEach(card => {
+                    const cardDay = card.getAttribute('data-day');
+                    const cardText = card.textContent.toLowerCase();
+                    
+                    const dayMatch = activeDay === 'all' || cardDay === activeDay;
+                    const searchMatch = searchText === '' || cardText.includes(searchText);
+                    
+                    if (dayMatch && searchMatch) {
+                        card.style.display = 'block';
+                        hasVisibleClasses = true;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                
+                // Show/hide day headers based on visible cards
+                dayHeaders.forEach(header => {
+                    const day = header.getAttribute('data-day');
+                    const dayCards = document.querySelectorAll(`.class-card[data-day="${day}"]`);
+                    let hasVisible = false;
+                    
+                    dayCards.forEach(card => {
+                        if (card.style.display !== 'none') {
+                            hasVisible = true;
+                        }
+                    });
+                    
+                    header.style.display = hasVisible ? 'flex' : 'none';
+                });
+                
+                // Show no results message if needed
+                if (hasVisibleClasses) {
+                    noResults.style.display = 'none';
+                    schedule.style.display = 'block';
+                } else {
+                    noResults.style.display = 'block';
+                    schedule.style.display = 'none';
+                }
+            }
+            
+            // Profile button functionality
+            profileBtn.addEventListener('click', () => {
+                developerModal.classList.add('active');
+            });
+            
+            // Close modal functionality
+            modalClose.addEventListener('click', () => {
+                developerModal.classList.remove('active');
+            });
+            
+            // Close modal when clicking outside
+            developerModal.addEventListener('click', (e) => {
+                if (e.target === developerModal) {
+                    developerModal.classList.remove('active');
+                }
+            });
+            
+            // Bottom nav functionality
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const targetSection = item.getAttribute('data-section');
+                    
+                    // Update active nav item
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    // Show the corresponding section
+                    sections.forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    document.getElementById(targetSection).classList.add('active');
+                    
+                    // Show alert for other tabs (for demo purposes)
+                    if (targetSection !== 'schedule-section') {
+                        showToast(`${item.textContent.trim()} section opened`);
+                    }
+                });
+            });
+            
+            // Notification button
+            notificationsBtn.addEventListener('click', () => {
+                showToast('No new notifications');
+            });
+            
+            // Toast notification function
+            function showToast(message) {
+                toast.textContent = message;
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Dark mode toggle
+            darkModeToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    document.body.classList.add('dark-mode');
+                    localStorage.setItem('darkMode', 'enabled');
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    localStorage.setItem('darkMode', 'disabled');
+                }
+            });
+            
+            // Check for saved dark mode preference
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.body.classList.add('dark-mode');
+                darkModeToggle.checked = true;
+            }
+            
+            // Theme color selection
+            themeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const color = this.getAttribute('data-color');
+                    
+                    // Update active theme option
+                    themeOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update CSS variable
+                    document.documentElement.style.setProperty('--primary', color);
+                    
+                    // Save preference
+                    localStorage.setItem('themeColor', color);
+                    
+                    showToast('Theme color updated');
+                });
+            });
+            
+            // Check for saved theme color preference
+            const savedColor = localStorage.getItem('themeColor');
+            if (savedColor) {
+                document.documentElement.style.setProperty('--primary', savedColor);
+                
+                // Activate the corresponding theme option
+                themeOptions.forEach(option => {
+                    if (option.getAttribute('data-color') === savedColor) {
+                        option.classList.add('active');
+                    } else {
+                        option.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Auto-refresh current class every minute
+            setInterval(checkCurrentClass, 60000);
+        });
+    </script>
+</body>
+</html>
